@@ -1,0 +1,38 @@
+MIEJE MARKET — ESTADO REAL DE LA BASE DE DATOS
+
+Proyecto Supabase: MiEje Market
+Project ref: ibnwejpbntvoujdawkwh
+Región: sa-east-1 (São Paulo)
+URL API: https://ibnwejpbntvoujdawkwh.supabase.co
+Estado comprobado: ACTIVE_HEALTHY
+
+ESTRUCTURA APLICADA
+- profiles: perfil de cada usuario y rol técnico de plataforma.
+- businesses: negocios incorporados a la plataforma.
+- business_members: relación usuario-negocio con rol business_admin o employee.
+- categories y products: catálogo e inventario separados por negocio.
+- orders y order_items: pedidos y sus productos.
+- order_status_history: historial automático de cambios de estado.
+- access_events: entradas a paneles, con hora generada por la base de datos.
+- audit_events: auditoría central de cambios; las cuentas normales no pueden insertar, actualizar ni borrar eventos.
+- platform_financial_records: movimientos financieros de plataforma o negocio.
+- payroll_records: registro de nómina/honorarios.
+
+SEGURIDAD APLICADA
+- RLS activado en todas las tablas públicas de la estructura.
+- Funciones de autorización en el esquema privado.
+- Consulta de pedidos por funciones controladas para que el panel del personal no reciba importes de venta.
+- Cambios de estado validados y guardados en el historial.
+- Registros de auditoría con datos personales de cliente excluidos de los snapshots.
+- No se concede acceso directo de inserción/edición/borrado de eventos de auditoría a usuarios normales.
+- El registro de pedidos públicos todavía no está habilitado; requiere una función segura de checkout que valide precios, cantidades y stock en el servidor.
+
+IMPORTANTE
+El archivo 01_esquema_inicial_supabase.sql se ha sustituido deliberadamente por una barrera de seguridad, porque era un esquema anterior. No lo ejecutes. La estructura desplegada está en el historial de migraciones del proyecto Supabase.
+
+TODAVÍA PENDIENTE
+1. Crear el usuario propietario en Authentication > Users y asignarle platform_owner desde SQL Editor con el script 01_asignar_propietario_tecnico.sql.
+2. Registrar el primer negocio y sus cuentas. Los datos reales de negocios no se han inventado ni creado.
+3. Completar el alta segura de negocios y usuarios desde el panel técnico usando funciones de servidor.
+4. Conectar el checkout de la página pública y realizar pruebas de permisos con cuentas distintas.
+5. Probar copias de seguridad y restauración antes de producción.

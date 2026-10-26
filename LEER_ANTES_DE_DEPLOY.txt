@@ -1,0 +1,8 @@
+IMPORTANTE: la versión index.ts.local-anterior-no-desplegar.txt es una copia antigua conservada como referencia; NO la despliegues porque no contiene las nuevas acciones.
+
+La Edge Function actual está desplegada directamente en Supabase:
+- Nombre: technical-business-management
+- Versión activa: 4
+- Acciones nuevas: set_business_status, set_member_status, resolve_block_request, moderate_business_content y marca is_business_owner en invite_member.
+
+Para obtener el código actual: abre Supabase Dashboard > Edge Functions > technical-business-management > Code y descarga/copia la versión desplegada antes de editarla. Las claves secretas deben seguir únicamente en el entorno del servidor.

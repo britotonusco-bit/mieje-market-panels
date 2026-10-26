@@ -1,0 +1,27 @@
+MiEje Market — plan de trabajo actualizado
+
+COMPLETADO EN ESTA ETAPA
+- Proyecto Supabase independiente creado en la región de São Paulo.
+- Tablas para perfiles, negocios, membresías, productos, categorías, pedidos, inventario, historial de estados, accesos, auditoría, finanzas y nómina.
+- RLS activado en las 12 tablas públicas.
+- Registro central de accesos y auditoría con permisos restrictivos.
+- Consultas de pedidos separadas para administración y personal, con datos financieros ocultos en la vista de empleados.
+- Inicio de sesión y tres vistas de panel conectadas a Supabase.
+- Panel técnico con formulario para crear negocios y enviar invitaciones a administradores/empleados.
+- Función Edge `technical-business-management` desplegada con validación de sesión y rol propietario técnico.
+- Página pública preparada para cargar negocios y productos activos desde Supabase.
+- Página para que las personas invitadas creen su contraseña.
+- Control de activación/desactivación de negocios con evento de auditoría.
+- Revisión de seguridad de Supabase: sin avisos en el análisis actual.
+
+SIGUIENTE ETAPA
+1. Crear la cuenta del propietario en Authentication y asignarle platform_owner con el SQL documentado.
+2. Configurar SMTP y la URL permitida de aceptar-invitacion.html para que lleguen invitaciones por correo.
+3. Crear el primer negocio de prueba y sus cuentas individuales.
+4. Probar inicio de sesión, registro de accesos, cambios de estado, invitaciones y aislamiento entre negocios A/B.
+5. Implementar checkout público con validación en servidor de negocio, productos, precios, cantidades y stock.
+6. Completar edición del catálogo, movimientos de inventario, informes financieros, gestión de pagos y recuperación de cuentas.
+7. Probar copias de seguridad y restauración antes de usar el sistema en producción.
+
+IMPORTANTE
+Las tablas están vacías: no se han inventado negocios, perfiles, pedidos ni ventas. La creación de negocios e invitaciones está conectada, pero depende de que primero se configure la cuenta propietaria. Los pedidos públicos todavía se muestran como vista previa y no se guardan en Supabase. El archivo panel-admin.html anterior sigue siendo una maqueta; los nuevos paneles son login.html, panel-negocio.html, panel-personal.html y panel-tecnico.html.

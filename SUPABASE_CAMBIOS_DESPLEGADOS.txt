@@ -1,0 +1,28 @@
+SUPABASE — CAMBIOS DESPLEGADOS
+Proyecto: MiEje Market (ibnwejpbntvoujdawkwh)
+Fecha: 26 de octubre de 2026
+
+Edge Function: technical-business-management
+Versión activa: 4
+Nuevas acciones:
+- set_business_status: activar/suspender tienda con motivo interno y mensaje público.
+- set_member_status: bloquear/reactivar acceso de un miembro, con motivo y auditoría.
+- resolve_block_request: aprobar/rechazar solicitudes de bloqueo enviadas por administradores.
+- moderate_business_content: aprobar/rechazar promociones, anuncios y formularios de empleo.
+- invite_member: permite marcar qué cuenta administrativa es la propietaria del negocio.
+
+Migraciones aditivas aplicadas:
+- store_suspensions_support_and_ai_settings
+- public_job_applications
+- public_support_settings_and_policy_fix
+- allow_members_to_read_suspension_notice
+- enforce_blocked_membership_access
+- moderate_business_public_content
+- enforce_technical_content_approval
+
+IMPORTANTE
+No se borraron negocios, usuarios, pedidos ni historial. La tabla businesses está vacía al momento de la implementación, así que las operaciones reales deben probarse al crear una tienda de prueba. El código de la Edge Function desplegada se puede consultar en Supabase > Edge Functions > technical-business-management. No se debe colocar la clave service_role en los archivos del navegador.
+
+Migración adicional: business_owner_controlled_block_requests.
+
+Migración adicional: job_application_custom_fields (campos personalizados de postulaciones).

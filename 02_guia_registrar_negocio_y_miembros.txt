@@ -1,0 +1,22 @@
+GUÍA TEMPORAL PARA REGISTRAR EL PRIMER NEGOCIO
+
+El panel técnico todavía no crea negocios ni cuentas automáticamente. No se simulará esa operación en la interfaz. Hasta que se implemente una función de servidor segura, el propietario debe hacer este proceso desde Supabase Studio.
+
+1. Crea primero el negocio en public.businesses con name, slug único y business_type. Copia el id generado.
+2. Crea las cuentas individuales en Authentication > Users. Supabase crea el perfil correspondiente automáticamente.
+3. En public.business_members, asigna a cada usuario el business_id correcto y un role: business_admin o employee.
+4. No uses la misma cuenta para varias personas. No compartas contraseñas.
+5. Comprueba que un usuario de un negocio no pueda consultar el de otro.
+
+Ejemplo orientativo de SQL para un negocio (reemplaza valores y ejecuta por separado):
+
+INSERT INTO public.businesses (name, slug, business_type)
+VALUES ('NOMBRE REAL DEL NEGOCIO', 'slug-unico-del-negocio', 'general')
+RETURNING id;
+
+Después de obtener los UUID reales:
+
+INSERT INTO public.business_members (business_id, user_id, role)
+VALUES ('UUID-REAL-DEL-NEGOCIO'::uuid, 'UUID-REAL-DEL-USUARIO'::uuid, 'business_admin');
+
+Para cada empleado, repite el INSERT con su UUID y role = 'employee'. Solo el propietario de la base de datos debe ejecutar estas operaciones mientras no exista el flujo seguro de alta en el panel técnico.

@@ -1,0 +1,50 @@
+MIEJE MARKET — CONFIGURACIÓN ACTUAL
+
+Proyecto Supabase: ibnwejpbntvoujdawkwh
+URL: https://ibnwejpbntvoujdawkwh.supabase.co
+Región: São Paulo (sa-east-1)
+
+CLAVE PÚBLICA
+La clave publicable se configura en MiEje Market/supabase-config.js. Es apta para el navegador siempre que RLS permanezca habilitada. Nunca añadas aquí una secret key ni service_role.
+
+PANELES
+- MiEje Market/login.html: inicio de sesión.
+- MiEje Market/panel-tecnico.html: panel del propietario técnico.
+- MiEje Market/panel-negocio.html: panel administrativo de un negocio.
+- MiEje Market/panel-personal.html: panel operativo del personal.
+- MiEje Market/aceptar-invitacion.html: activar una cuenta invitada.
+
+CREAR TU CUENTA DE PROPIETARIO
+1. En Supabase abre Authentication > Users y crea/invita tu cuenta.
+2. Copia el UUID del usuario.
+3. Abre Base de datos/01_asignar_propietario_tecnico.sql, reemplaza las dos apariciones de REEMPLAZAR-POR-UUID-REAL-DEL-USUARIO y ejecuta el SQL en el proyecto MiEje Market.
+4. Confirma que el resultado muestre platform_role = platform_owner.
+5. Inicia sesión desde MiEje Market/login.html.
+
+CREAR NEGOCIOS Y USUARIOS
+Desde el panel técnico, crea el negocio. Después selecciona el negocio y envía una invitación al correo del administrador o empleado. El invitado abre el correo y crea su propia contraseña en aceptar-invitacion.html. No se establecen ni se almacenan contraseñas desde el panel técnico.
+
+EMAILS DE INVITACIÓN
+Para enviar invitaciones de forma fiable, configura SMTP en Supabase Authentication > SMTP Settings y revisa Authentication > URL Configuration. Añade la URL publicada de aceptar-invitacion.html a las Redirect URLs permitidas (por ejemplo, https://TU-USUARIO.github.io/TU-REPOSITORIO/aceptar-invitacion.html). Sin un proveedor SMTP configurado, los correos pueden no llegar o estar sujetos a límites de pruebas.
+
+FUNCIÓN DE SERVIDOR
+La función Edge `technical-business-management` está desplegada en Supabase (versión 4). Valida la sesión y el rol platform_owner en el servidor antes de crear negocios, invitar miembros, suspender negocios, bloquear cuentas, resolver solicitudes o moderar publicaciones. Su código desplegado se consulta en Supabase > Edge Functions > technical-business-management. Las claves secretas permanecen en el entorno del servidor; nunca deben copiarse a los archivos del navegador.
+
+CATÁLOGO PÚBLICO
+La página index.html carga los negocios activos y sus productos activos desde Supabase. Los negocios nuevos aparecerán al estar activos. Los negocios de demostración que ya venían en el prototipo se conservan hasta retirarlos deliberadamente.
+
+LIMITACIONES DE ESTA VERSIÓN
+- Crear el negocio y enviar invitaciones ya están conectados.
+- La página pública todavía muestra el flujo de pedido como vista previa; no se guarda un pedido real en Supabase. Los métodos de pago y entrega sí se muestran según la configuración de cada tienda.
+- La edición completa de productos, finanzas y nómina desde la interfaz queda para la siguiente etapa.
+- Antes de producción, probar cuentas reales de administrador/empleado, aislamiento entre negocios, envío de correos y todos los permisos.
+
+SEGURIDAD
+No compartas contraseñas, tokens ni claves secretas. No desactives RLS. La clave publicable sí aparece en el archivo del navegador; eso es normal. Nunca publiques una clave secret/service_role.
+
+
+CONFIGURACIONES NUEVAS
+- Ejecutar/consultar la migración aditiva descrita en Base de datos/04_suspensiones_tienda_bloqueos_soporte_ia.sql, además de las notas de 05 y 06. Las migraciones ya están aplicadas al proyecto de Supabase asociado. No ejecutar 01_esquema_inicial_supabase.sql ni scripts de limpieza antiguos.
+- El primer administrador invitado que sea dueño debe llevar marcada la casilla “Esta cuenta será la propietaria del negocio”. Solo esa cuenta puede enviar solicitudes de bloqueo al servicio técnico.
+- El técnico debe configurar el WhatsApp en Panel técnico > IA general. El número se guarda en una tabla pública separada de las instrucciones privadas de IA.
+- Las promociones y formularios se crean como pendientes y requieren aprobación técnica antes de mostrarse a clientes.

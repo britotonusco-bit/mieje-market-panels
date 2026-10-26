@@ -1,0 +1,7 @@
+MiEje Market — estado actualizado
+
+El proyecto Supabase ya fue creado y la estructura inicial de datos y seguridad ya fue aplicada. Consulta CONFIGURACION_SUPABASE_Y_PANELES.txt para los pasos actuales.
+
+No ejecutes el antiguo esquema SQL. El archivo Base de datos/01_esquema_inicial_supabase.sql contiene una barrera para evitar ejecutar un esquema desactualizado.
+
+El checkout público todavía no está conectado. No uses esta versión para recibir pedidos reales hasta completar la función segura de pedidos, probar el aislamiento entre negocios y revisar la restauración de copias de seguridad.

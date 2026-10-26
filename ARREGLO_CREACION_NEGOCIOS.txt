@@ -1,0 +1,15 @@
+ARREGLO URGENTE — PANEL TÉCNICO
+
+Problema identificado:
+El panel definía las funciones createBusiness e inviteBusinessMember, pero no registraba los eventos submit de los formularios #createBusinessForm y #inviteMemberForm. Por eso, al pulsar los botones, el navegador no ejecutaba la operación ni enviaba la solicitud a Supabase.
+
+Corrección aplicada:
+- Registrado el evento submit del formulario de creación de negocios.
+- Registrado el evento submit del formulario de invitación de administradores/empleados.
+- Validación sintáctica de panel-live.js con node --check: correcta.
+
+Archivos modificados:
+- MiEje Market/panel-live.js
+
+Importante:
+Este arreglo corrige la causa detectada en la interfaz. No se ha hecho una creación real de prueba ni se debe afirmar que el flujo completo esté validado hasta probarlo con la sesión autorizada en el navegador.

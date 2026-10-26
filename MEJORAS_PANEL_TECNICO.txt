@@ -1,0 +1,22 @@
+MiEje Market — mejoras del panel técnico superior
+
+Cambios incluidos en esta versión:
+1. Botón «Actualizar datos» para volver a consultar el resumen, negocios, finanzas, accesos y auditoría sin crear ni modificar registros.
+2. Búsqueda de negocios por nombre, identificador (slug) o tipo.
+3. Indicador de resultados filtrados y total de negocios.
+4. Se evita registrar repetidamente el evento change del selector de negocios cada vez que se actualiza la información.
+5. La actualización intenta conservar el negocio seleccionado si sigue existiendo.
+
+Archivos modificados:
+- MiEje Market/panel-tecnico.html
+- MiEje Market/panel-live.js
+
+No se modificaron SQL, tablas, políticas RLS, credenciales ni la Edge Function. No se crearon ni borraron datos. La sintaxis JavaScript se comprobó con node --check.
+
+Instalación local:
+1. Descomprime este ZIP en una carpeta nueva o conserva una copia de seguridad de tu carpeta actual.
+2. Copia los dos archivos indicados sobre los archivos homónimos de tu proyecto local.
+3. Abre panel-tecnico.html mediante Live Server e inicia sesión.
+4. Usa «Actualizar datos» y prueba la búsqueda con un negocio existente.
+
+La actualización solo refresca datos que el usuario autenticado ya tiene permiso para consultar; no concede permisos nuevos. Estas mejoras son de interfaz y no sustituyen pruebas completas de las operaciones de creación/invitación.

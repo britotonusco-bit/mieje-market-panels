@@ -1,0 +1,33 @@
+MIEJE MARKET — MEJORAS DE SUSPENSIONES, SOPORTE Y CONFIGURACION POR NEGOCIO
+Fecha: 26 de octubre de 2026
+
+CAMBIOS REALIZADOS EN EL PROYECTO
+1. Suspensión de negocios: el panel técnico solicita un motivo interno y permite guardar un mensaje público diferente para clientes. La reactivación limpia los campos de suspensión. El cambio se registra en la auditoría.
+2. Bloqueo individual: el panel técnico permite bloquear/reactivar un usuario de un negocio con motivo. Solo la cuenta marcada como propietaria del negocio puede enviar una solicitud al servicio técnico; el técnico puede aprobar o rechazarla. El propietario se marca al enviar la invitación administrativa desde el panel técnico.
+3. Control de permisos: la función privada private.is_business_member ahora niega el acceso de miembros bloqueados y de negocios suspendidos a las tablas protegidas por esa función.
+4. Avisos: los paneles de administrador y personal muestran el motivo de bloqueo/suspensión al volver a entrar. El directorio público puede mostrar el mensaje de tienda suspendida y evita ofrecer productos/pedidos de esa tienda.
+5. Soporte por WhatsApp: el propietario técnico configura el número de soporte en el panel técnico. El enlace se muestra en los paneles administrativo y del personal.
+6. Configuración independiente por tienda: WhatsApp, métodos de pago, métodos de entrega, información de contacto/publicidad.
+7. Contenido de tienda: el administrador puede crear promociones, anuncios y formularios de empleo. Los formularios publicados aceptan postulaciones y el administrador puede cambiar el estado de cada postulación.
+8. IA separada: hay almacenamiento/configuración para IA general de la plataforma y para IA propia de cada negocio. Las instrucciones y ajustes se guardan separados y protegidos por RLS. La aprobación de promociones/formularios se realiza desde el panel técnico.
+9. Se conserva el asistente actual del catálogo; no se eliminó ni se sustituyó su código.
+
+CAMBIOS EN SUPABASE
+- Migración aditiva aplicada: columnas de suspensión y bloqueo; tablas business_store_settings, business_content_pages, access_block_requests, platform_ai_settings, platform_public_settings, business_ai_settings y job_applications.
+- RLS activada en las tablas nuevas con políticas por rol y negocio.
+- Edge Function technical-business-management desplegada en versión 4. Añade set_business_status con motivos, set_member_status, resolve_block_request y moderate_business_content.
+- No se borraron negocios, usuarios, pedidos ni registros existentes.
+
+LÍMITES QUE DEBEN QUEDAR CLAROS
+- La compra pública sigue siendo una vista previa: el pedido no se guarda ni se envía a la tienda. La selección de pago y entrega ya puede variar por negocio, pero falta completar el checkout real con validación segura de precios, stock y cantidades.
+- La configuración de IA se almacena, pero no activa por sí sola un proveedor de IA real. Para automatizar respuestas con un modelo, falta integrar el proveedor desde una función de servidor y recuperar únicamente datos permitidos para cada ámbito.
+- El formulario de postulaciones sí escribe en job_applications; revisar privacidad, consentimiento y proceso de retención antes de publicar a gran escala.
+- No se realizó un flujo completo de prueba con negocios reales porque la tabla businesses está vacía. Probar suspensión, bloqueo, publicación y postulaciones al crear una tienda de prueba.
+- El asesor de seguridad de Supabase continúa mostrando una advertencia previa: la protección de contraseñas filtradas está deshabilitada. Se recomienda activarla desde Authentication > Settings cuando se termine de validar la configuración.
+
+DESPLIEGUE DE ARCHIVOS WEB
+1. Guarda una copia de tu carpeta anterior.
+2. Extrae este ZIP en una carpeta nueva.
+3. Publica los archivos web actualizados en GitHub Pages.
+4. La función Edge ya está desplegada en Supabase; su versión actual es 2.
+5. Prueba primero con una tienda y cuentas de prueba, no con usuarios reales.

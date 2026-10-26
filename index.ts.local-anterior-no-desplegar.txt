@@ -1,0 +1,114 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+// Esta función requiere sesión válida y rol platform_owner. Las claves privilegiadas
+// se leen exclusivamente del entorno de Supabase, nunca del navegador.
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json",
+};
+const json = (status: number, data: Record<string, unknown>) =>
+  new Response(JSON.stringify(data), { status, headers: cors });
+const slugify = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 70);
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method !== "POST") return json(405, { error: "Método no permitido." });
+  try {
+    const url = Deno.env.get("SUPABASE_URL")!;
+    const publicKey = Deno.env.get("SUPABASE_ANON_KEY") ?? JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") ?? "{}").default;
+    const secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}").default;
+    if (!url || !publicKey || !secretKey) return json(500, { error: "Falta configuración segura de Supabase." });
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) return json(401, { error: "Inicia sesión." });
+    const token = authHeader.slice(7);
+    const userClient = createClient(url, publicKey, { global: { headers: { Authorization: authHeader } }, auth: { persistSession: false, autoRefreshToken: false } });
+    const { data: auth, error: authError } = await userClient.auth.getUser(token);
+    if (authError || !auth.user) return json(401, { error: "La sesión no es válida." });
+    const admin = createClient(url, secretKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data: profile } = await admin.from("profiles").select("platform_role").eq("id", auth.user.id).maybeSingle();
+    if (profile?.platform_role !== "platform_owner") return json(403, { error: "Solo el propietario técnico puede administrar negocios y cuentas." });
+    const body = await req.json();
+
+    if (body.action === "create_business") {
+      const name = String(body.name ?? "").trim();
+      const slugBase = slugify(String(body.slug ?? name));
+      if (name.length < 2 || !slugBase) return json(400, { error: "Escribe un nombre válido." });
+      let slug = slugBase;
+      for (let i = 0; i < 5; i++) {
+        const { data } = await admin.from("businesses").select("id").eq("slug", slug).maybeSingle();
+        if (!data) break;
+        slug = `${slugBase}-${crypto.randomUUID().slice(0, 5)}`;
+      }
+      const { data: business, error } = await admin.from("businesses").insert({
+        name, slug, business_type: String(body.business_type ?? "general").slice(0, 80),
+        category: String(body.category ?? "General").slice(0, 80),
+        tagline: String(body.tagline ?? "").slice(0, 180) || null,
+        description: String(body.description ?? "").slice(0, 2000) || null,
+        city: String(body.city ?? "Pereira, Risaralda").slice(0, 120),
+        contact_phone: String(body.contact_phone ?? "").slice(0, 40) || null,
+        opening_hours: String(body.opening_hours ?? "").slice(0, 180) || null,
+        is_active: true,
+      }).select("id,name,slug,business_type,category,is_active,created_at").single();
+      if (error || !business) return json(400, { error: error?.message ?? "No se pudo crear el negocio." });
+      const { error: auditError } = await admin.from("audit_events").insert({
+        business_id: business.id, actor_user_id: auth.user.id, action: "INSERT", table_name: "businesses", record_id: business.id,
+        new_data: { name: business.name, slug: business.slug, category: business.category, is_active: true, action: "business_created_from_technical_panel" },
+      });
+      if (auditError) return json(500, { error: "El negocio se creó, pero no se pudo confirmar el evento de auditoría. Revisa el panel técnico." });
+      return json(200, { business, message: "Negocio creado y registrado." });
+    }
+
+    if (body.action === "invite_member") {
+      const businessId = String(body.business_id ?? "");
+      const email = String(body.email ?? "").trim().toLowerCase();
+      const role = String(body.role ?? "");
+      const displayName = String(body.display_name ?? "").trim().slice(0, 120);
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json(400, { error: "Escribe un correo válido." });
+      if (!["business_admin", "employee"].includes(role)) return json(400, { error: "Rol no permitido." });
+      const { data: business, error: bError } = await admin.from("businesses").select("id,name").eq("id", businessId).single();
+      if (bError || !business) return json(404, { error: "No se encontró el negocio." });
+      const redirectTo = String(body.redirect_to ?? "");
+      const invite = await admin.auth.admin.inviteUserByEmail(email, {
+        data: { full_name: displayName || email.split("@")[0] },
+        ...(redirectTo.startsWith("https://") ? { redirectTo } : {}),
+      });
+      if (invite.error || !invite.data.user) return json(400, { error: invite.error?.message ?? "No se pudo enviar la invitación." });
+      const invitedUser = invite.data.user;
+      const { error: memberError } = await admin.from("business_members").upsert({
+        business_id: businessId, user_id: invitedUser.id, role, display_title: displayName || null, is_active: true,
+      }, { onConflict: "business_id,user_id" });
+      if (memberError) {
+        await admin.auth.admin.deleteUser(invitedUser.id);
+        return json(400, { error: "No se pudo asignar el usuario al negocio; se revirtió la cuenta. " + memberError.message });
+      }
+      const { error: auditError } = await admin.from("audit_events").insert({
+        business_id: businessId, actor_user_id: auth.user.id, action: "INSERT", table_name: "business_members", record_id: invitedUser.id,
+        new_data: { user_id: invitedUser.id, email, role, display_title: displayName || null, action: "business_member_invited" },
+      });
+      if (auditError) return json(500, { error: "La cuenta fue asignada, pero no se pudo confirmar la auditoría. Revisa el panel técnico." });
+      return json(200, { message: "Invitación enviada y usuario asignado.", business: business.name, email, role });
+    }
+
+    if (body.action === "set_business_status") {
+      const id = String(body.business_id ?? "");
+      const { data: old, error: oldError } = await admin.from("businesses").select("id,name,is_active").eq("id", id).single();
+      if (oldError || !old) return json(404, { error: "No se encontró el negocio." });
+      const is_active = body.is_active === true;
+      const { data: updated, error } = await admin.from("businesses").update({ is_active }).eq("id", id).select("id,name,is_active,slug").single();
+      if (error || !updated) return json(400, { error: error?.message ?? "No se pudo actualizar el estado." });
+      const { error: auditError } = await admin.from("audit_events").insert({
+        business_id: id, actor_user_id: auth.user.id, action: "UPDATE", table_name: "businesses", record_id: id,
+        old_data: { is_active: old.is_active }, new_data: { is_active, action: "business_status_changed" },
+      });
+      if (auditError) return json(500, { error: "El estado cambió, pero falló la confirmación de auditoría. Revisa el panel técnico." });
+      return json(200, { business: updated, message: is_active ? "Negocio activado." : "Negocio desactivado y oculto del catálogo." });
+    }
+    return json(400, { error: "Acción no reconocida." });
+  } catch (error) {
+    return json(500, { error: error instanceof Error ? error.message : "Error interno." });
+  }
+});

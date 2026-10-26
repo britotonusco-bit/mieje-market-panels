@@ -1,0 +1,22 @@
+ETAPA: CREACIÓN DE NEGOCIOS Y CUENTAS DESDE EL PANEL TÉCNICO
+
+Ya se aplicó una migración a public.businesses para añadir los campos públicos de presentación del negocio: categoría, descripción, frase corta, ciudad, teléfono y horario.
+
+El panel técnico incluye:
+- Formulario para crear un negocio.
+- Invitación por correo de su administrador o de empleados.
+- Asignación del usuario al negocio y al rol seleccionado.
+- Registro central de las altas en audit_events.
+- La página pública consulta negocios activos y sus productos activos.
+
+La función Edge `technical-business-management` valida que la sesión sea válida y que el perfil tenga platform_role = platform_owner. No se permite que un usuario normal invoque estas acciones solo por conocer la URL.
+
+Activación inicial del propietario:
+1. Crear/invitar la cuenta del dueño en Authentication > Users.
+2. Copiar el UUID real.
+3. Ejecutar 01_asignar_propietario_tecnico.sql reemplazando el marcador por el UUID.
+4. Entrar a login.html y abrir el panel técnico.
+
+Para que funcionen los correos, configura SMTP y añade aceptar-invitacion.html a las Redirect URLs permitidas de Supabase.
+
+No ejecutar SQL de borrado ni desactivar RLS para resolver errores. La clave secreta nunca se debe poner en archivos públicos.

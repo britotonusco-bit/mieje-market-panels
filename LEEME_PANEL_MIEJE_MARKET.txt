@@ -1,0 +1,23 @@
+MIEJE MARKET — PRIMERA VERSIÓN CON PANELES Y ALTA DE NEGOCIOS
+
+1. Abre index.html para ver el catálogo público.
+2. Abre login.html para entrar a los paneles.
+3. panel-tecnico.html es exclusivo del propietario técnico.
+4. panel-negocio.html es el panel administrativo de un negocio.
+5. panel-personal.html es el panel operativo de empleados.
+6. aceptar-invitacion.html permite al invitado crear su contraseña personal.
+
+El panel técnico puede crear negocios, invitar administradores y empleados por correo y activar/desactivar negocios. Los negocios activos se consultan desde Supabase y aparecen en el catálogo público junto a los datos de sus productos activos. Los eventos importantes se registran en la auditoría central.
+
+ANTES DE USAR:
+- Configura tu cuenta como platform_owner con el SQL de Base de datos/01_asignar_propietario_tecnico.sql.
+- Configura SMTP y la URL de redirección de invitación en Supabase Authentication.
+- Publica los archivos conservando las rutas y carpetas.
+- Prueba con usuarios separados y confirma que no puedan consultar datos de otro negocio.
+- Los pedidos del catálogo público siguen en modo de vista previa: todavía no se guardan en Supabase.
+
+Nunca incluyas una clave secret/service_role en los archivos públicos ni compartas contraseñas.
+
+
+NUEVAS FUNCIONES (26-10-2026)
+Consulta MEJORAS_IMPLEMENTADAS_OCTUBRE_2026.txt para los cambios de suspensiones con motivos, bloqueos individuales, soporte por WhatsApp, métodos de pago y entrega por negocio, promociones/formularios con aprobación técnica y configuración separada de las dos IA. La migración aditiva está documentada en Base de datos/04_suspensiones_tienda_bloqueos_soporte_ia.sql. La Edge Function técnica está desplegada en Supabase, versión 3. No ejecutes scripts antiguos de esquema inicial ni scripts de limpieza.

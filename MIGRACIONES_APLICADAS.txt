@@ -1,0 +1,14 @@
+Historial de migraciones aplicadas al proyecto MiEje Market (ibnwejpbntvoujdawkwh):
+
+- 20261026133821_initial_multi_business_security_and_audit
+- 20261026133910_tighten_panel_policies_and_audit_indexes
+- 20261026134020_enrich_panel_access_audit
+- 20261026134135_restrict_order_data_and_add_panel_queries
+- 20261026134331_add_tenant_business_dashboard_summary
+- 20261026134506_audit_profile_and_role_changes
+
+La base de datos activa es la fuente de verdad. Este archivo es un registro de los nombres aplicados, no un SQL ejecutable.
+El archivo 01_esquema_inicial_supabase.sql se ha reemplazado por una barrera de seguridad porque contenía un esquema anterior.
+20261026 business_public_profile_and_role_guardrails: campos públicos de negocio y restricción de creación de roles de negocio a propietarios técnicos o administradores para empleados.
+
+La función Edge technical-business-management fue desplegada para creación de negocios, invitaciones de usuarios y activación/desactivación con comprobación del propietario técnico y registro de auditoría.
